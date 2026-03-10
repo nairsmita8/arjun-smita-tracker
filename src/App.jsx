@@ -27,32 +27,44 @@ import "./App.css";
 const PEOPLE = ["Arjun", "Smita"];
 const GOALS = ["workout", "steps", "water", "sleep", "reading"];
 
+/* -----------------------------------------
+   FIX: LOCAL TIMEZONE DATE HANDLING
+------------------------------------------*/
+function getLocalDateString(dateObj = new Date()) {
+  const d = new Date(dateObj);
+  d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+  return d.toISOString().slice(0, 10);
+}
+
 export default function App() {
-  const [selectedDate, setSelectedDate] = useState(
-    new Date().toISOString().slice(0, 10)
-  );
+  const [selectedDate, setSelectedDate] = useState(getLocalDateString());
   const [history, setHistory] = useState({});
   const [graphData, setGraphData] = useState([]);
   const [weeklyData, setWeeklyData] = useState([]);
 
+  /* -----------------------------------------
+     LOAD DATA WHEN DATE CHANGES
+  ------------------------------------------*/
   useEffect(() => {
     loadDailyData();
     loadGraphData();
     loadWeeklyData();
   }, [selectedDate]);
 
+  /* -----------------------------------------
+     LOAD DAILY GOALS FOR SELECTED DATE
+  ------------------------------------------*/
   async function loadDailyData() {
     const result = {};
+
     for (const person of PEOPLE) {
-      const id = `${person}_${selectedDate}`;
-      const ref = doc(db, "dailyGoals", id);
-      const snap = await getDocs(
-        query(
-          collection(db, "dailyGoals"),
-          where("person", "==", person),
-          where("date", "==", selectedDate)
-        )
+      const q = query(
+        collection(db, "dailyGoals"),
+        where("person", "==", person),
+        where("date", "==", selectedDate)
       );
+
+      const snap = await getDocs(q);
 
       if (!snap.empty) {
         result[person] = snap.docs[0].data().goals;
@@ -66,15 +78,20 @@ export default function App() {
         };
       }
     }
+
     setHistory(result);
   }
 
+  /* -----------------------------------------
+     SAVE GOAL TO FIRESTORE
+  ------------------------------------------*/
   async function toggleGoal(person, goal) {
     const updated = { ...history };
     updated[person][goal] = !updated[person][goal];
     setHistory(updated);
 
     const id = `${person}_${selectedDate}`;
+
     await setDoc(doc(db, "dailyGoals", id), {
       person,
       date: selectedDate,
@@ -82,16 +99,21 @@ export default function App() {
     });
   }
 
+  /* -----------------------------------------
+     LOAD LINE CHART (NEXT 90 DAYS)
+  ------------------------------------------*/
   async function loadGraphData() {
-    const today = new Date();
-    const past = new Date();
-    past.setDate(today.getDate() - 90);
+    const start = new Date(selectedDate);
+    const end = new Date(selectedDate);
+    end.setDate(end.getDate() + 90);
 
-    const startStr = past.toISOString().slice(0, 10);
+    const startStr = getLocalDateString(start);
+    const endStr = getLocalDateString(end);
 
     const q = query(
       collection(db, "dailyGoals"),
-      where("date", ">=", startStr)
+      where("date", ">=", startStr),
+      where("date", "<=", endStr)
     );
 
     const snap = await getDocs(q);
@@ -114,16 +136,21 @@ export default function App() {
     setGraphData(sorted);
   }
 
+  /* -----------------------------------------
+     LOAD WEEKLY STACKED BAR (NEXT 90 DAYS)
+  ------------------------------------------*/
   async function loadWeeklyData() {
-    const today = new Date();
-    const past = new Date();
-    past.setDate(today.getDate() - 90);
+    const start = new Date(selectedDate);
+    const end = new Date(selectedDate);
+    end.setDate(end.getDate() + 90);
 
-    const startStr = past.toISOString().slice(0, 10);
+    const startStr = getLocalDateString(start);
+    const endStr = getLocalDateString(end);
 
     const q = query(
       collection(db, "dailyGoals"),
-      where("date", ">=", startStr)
+      where("date", ">=", startStr),
+      where("date", "<=", endStr)
     );
 
     const snap = await getDocs(q);
@@ -142,6 +169,9 @@ export default function App() {
     setWeeklyData(Object.values(weekly));
   }
 
+  /* -----------------------------------------
+     RENDER UI
+  ------------------------------------------*/
   return (
     <div className="app">
       <h1>Daily Goal Tracker</h1>
@@ -184,7 +214,7 @@ export default function App() {
         ))}
       </div>
 
-      <h2 className="chart-title">90-Day Progress</h2>
+      <h2 className="chart-title">Next 90 Days Progress</h2>
       <div className="chart-container">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={graphData}>
@@ -199,7 +229,7 @@ export default function App() {
         </ResponsiveContainer>
       </div>
 
-      <h2 className="chart-title">Weekly Stacked Chart</h2>
+      <h2 className="chart-title">Weekly Totals (Next 90 Days)</h2>
       <div className="chart-container">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={weeklyData}>
