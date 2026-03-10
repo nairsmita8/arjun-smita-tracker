@@ -1,32 +1,25 @@
-/* GLOBAL RESET + WHITE BACKGROUND */
 html, body, #root {
   background: #ffffff;
   color: #000000;
   margin: 0;
   padding: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   min-height: 100vh;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
-/* MAIN APP CONTAINER */
 .app {
   max-width: 900px;
   margin: 0 auto;
   padding: 1.5rem;
 }
 
-/* MAIN TITLE */
 h1 {
   text-align: center;
   margin-bottom: 1.5rem;
   font-size: 2rem;
   font-weight: 600;
-  color: #000;
-  background: transparent;
-  padding: 0;
 }
 
-/* DATE PICKER */
 .date-picker {
   display: flex;
   justify-content: center;
@@ -34,18 +27,15 @@ h1 {
 }
 
 .date-picker label span {
-  color: #000;
   font-weight: 500;
 }
 
-/* PEOPLE CARDS LAYOUT */
 .people-container {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
 }
 
-/* INDIVIDUAL PERSON CARD */
 .person-card {
   flex: 1 1 300px;
   border: 1px solid #ddd;
@@ -59,41 +49,8 @@ h1 {
   margin-top: 0;
   font-size: 1.3rem;
   font-weight: 600;
-  color: #000;
 }
 
-/* PROGRESS BAR */
-.progress-bar-wrapper {
-  margin-bottom: 1rem;
-}
-
-.progress-label {
-  font-size: 0.9rem;
-  margin-bottom: 0.25rem;
-}
-
-.progress-bar {
-  width: 100%;
-  height: 12px;
-  background: #eee;
-  border-radius: 6px;
-  overflow: hidden;
-}
-
-.progress-fill {
-  height: 100%;
-  transition: width 0.2s ease;
-}
-
-.progress-green {
-  background: #2ecc71;
-}
-
-.progress-red {
-  background: #e74c3c;
-}
-
-/* GOALS LIST */
 .goals-list {
   display: flex;
   flex-direction: column;
@@ -106,12 +63,11 @@ h1 {
   gap: 0.5rem;
   padding: 0.35rem 0.5rem;
   border-radius: 4px;
-  font-size: 0.95rem;
+  cursor: pointer;
 }
 
 .goal-ok {
   background: #e8f8f0;
-  color: #000;
 }
 
 .goal-missing {
@@ -119,14 +75,17 @@ h1 {
   color: #c0392b;
 }
 
-/* STREAK INFO */
-.streak-info p {
-  margin: 0.3rem 0;
-  font-size: 0.9rem;
-  color: #333;
+.chart-title {
+  margin-top: 2rem;
+  text-align: center;
 }
 
-/* CHARTS */
+.chart-container {
+  width: 100%;
+  height: 320px;
+  margin: 1.5rem 0;
+}
+
 .recharts-wrapper {
-  background: #ffffff;
+  min-height: 300px;
 }
