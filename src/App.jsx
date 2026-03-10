@@ -25,7 +25,9 @@ import {
 import "./App.css";
 
 const PEOPLE = ["Arjun", "Smita"];
-const GOALS = ["workout", "steps", "water", "sleep", "reading"];
+
+/* Added healthyFood here */
+const GOALS = ["workout", "steps", "water", "sleep", "reading", "healthyFood"];
 
 /* -----------------------------------------
    FIX: LOCAL TIMEZONE DATE HANDLING
@@ -69,12 +71,14 @@ export default function App() {
       if (!snap.empty) {
         result[person] = snap.docs[0].data().goals;
       } else {
+        /* Added healthyFood default here */
         result[person] = {
           workout: false,
           steps: false,
           water: false,
           sleep: false,
           reading: false,
+          healthyFood: false,
         };
       }
     }
@@ -125,6 +129,8 @@ export default function App() {
       if (!grouped[entry.date]) {
         grouped[entry.date] = { date: entry.date, Arjun: 0, Smita: 0 };
       }
+
+      /* healthyFood automatically included because we count all true values */
       const count = Object.values(entry.goals).filter(Boolean).length;
       grouped[entry.date][entry.person] = count;
     });
@@ -206,7 +212,9 @@ export default function App() {
                     checked={history[person]?.[goal] || false}
                     readOnly
                   />
-                  <span>{goal}</span>
+                  <span>
+                    {goal === "healthyFood" ? "healthy food" : goal}
+                  </span>
                 </div>
               ))}
             </div>
